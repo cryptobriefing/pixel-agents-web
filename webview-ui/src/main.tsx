@@ -16,6 +16,20 @@ async function main() {
       <App />
     </StrictMode>,
   );
+  if (isBrowserRuntime) {
+    const onLayoutLoaded = (e: MessageEvent): void => {
+      const data = e.data as { type?: string } | null;
+      if (data?.type !== 'layoutLoaded') return;
+      window.removeEventListener('message', onLayoutLoaded);
+      setTimeout(() => {
+        void import('./mockAgents.js').then(({ startMockAgentDemo }) => {
+          console.log('[mockAgents] starting demo');
+          startMockAgentDemo();
+        });
+      }, 800);
+    };
+    window.addEventListener('message', onLayoutLoaded);
+  }
 }
 
 main().catch(console.error);
